@@ -116,7 +116,12 @@ before_script:
   - cd build
   - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
 
+after_success:
+  - |
+    if test coverage = "${BUILD}"; then
+      bash <(curl -s https://codecov.io/bash) -f ./fastq_to_fasta_coverage -R "${TRAVIS_BUILD_DIR}" || echo 'Codecov failed to upload'
+    fi
+
 script:
   - make -k -j2 api_test cli_test
   - ctest . --output-on-failure
-
