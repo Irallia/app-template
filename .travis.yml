@@ -17,6 +17,7 @@ addons:
       - g++-8
       - g++-9
       - g++-10
+      - lcov
 
 # https://docs.travis-ci.com/user/languages/c
 jobs:
@@ -93,6 +94,25 @@ jobs:
         - CXX=g++-9
         - CC=gcc-9
         - BUILD_TYPE=Debug
+    - os: linux
+      name: "Coverage"
+      addons:
+        apt:
+          sources:
+            - sourceline: 'ppa:ubuntu-toolchain-r/test'
+          packages:
+            - lcov
+      script:
+        - sudo update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-7 100
+        - mkdir build
+        - cd build
+        - cmake ../test/coverage
+        - make -k -j2
+        - bash <(curl -s https://codecov.io/bash) -f ./fastq_to_fasta_coverage -R "${TRAVIS_BUILD_DIR}" || echo 'Codecov failed to upload'
+      env:
+        - CXX=g++-7
+        - CC=gcc-7
+        - BUILD_TYPE=Debug
   allow_failures:
     - name: "Documentation"
   fast_finish: true
@@ -112,14 +132,13 @@ install:
   - cmake --version
 
 before_script:
-  - mkdir build
-  - cd build
-  - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
-
-after_success:
   - |
-    if test coverage = "${BUILD}"; then
-      bash <(curl -s https://codecov.io/bash) -f ./fastq_to_fasta_coverage -R "${TRAVIS_BUILD_DIR}" || echo 'Codecov failed to upload'
+    if [ "$TRAVIS_JOB_NAME" = "Coverage" ]; then
+      : # no-op
+    else
+      mkdir build
+      cd build
+      cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
     fi
 
 script:

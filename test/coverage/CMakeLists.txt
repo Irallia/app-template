@@ -91,8 +91,8 @@ macro (fastq_to_fasta_test api_test_cpp cli_test_cpp)
     unset (test_name)
 endmacro ()
 
-fastq_to_fasta_require_ccache ()
-fastq_to_fasta_require_test ()
+# fastq_to_fasta_require_ccache ()
+# fastq_to_fasta_require_test ()
 
 # add all api & cli tests
 add_subdirectories_of ("${CMAKE_CURRENT_SOURCE_DIR}/../api")
