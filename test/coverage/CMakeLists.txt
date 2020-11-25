@@ -94,6 +94,9 @@ endmacro ()
 # fastq_to_fasta_require_ccache ()
 # fastq_to_fasta_require_test ()
 
+# add macro add_subdirectories_of
+include (../cmake/seqan3_macro_add_subdirectories.cmake)
+
 # add all api & cli tests
 add_subdirectories_of ("${CMAKE_CURRENT_SOURCE_DIR}/../api")
 add_subdirectories_of ("${CMAKE_CURRENT_SOURCE_DIR}/../cli")
