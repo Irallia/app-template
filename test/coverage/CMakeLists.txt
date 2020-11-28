@@ -66,17 +66,16 @@ add_custom_command(
     COMMENT "Open ${PROJECT_BINARY_DIR}/html/index.html in your browser to view the coverage report."
 )
 
-macro (fastq_to_fasta_test api_test_cpp cli_test_cpp)
+# add macro test_component
+include (../cmake/macro_seqan3_test_component.cmake)
+
+macro (add_api_test api_test_cpp)
     file (RELATIVE_PATH api_test "${CMAKE_SOURCE_DIR}/../api" "${CMAKE_CURRENT_LIST_DIR}/${api_test_cpp}")
-    file (RELATIVE_PATH cli_test "${CMAKE_SOURCE_DIR}/../cli" "${CMAKE_CURRENT_LIST_DIR}/${cli_test_cpp}")
-    fastq_to_fasta_test_component (target "${api_test}" TARGET_NAME)
-    fastq_to_fasta_test_component (target "${cli_test}" TARGET_NAME)
-    fastq_to_fasta_test_component (test_name "${api_test}" TEST_NAME)
-    fastq_to_fasta_test_component (test_name "${cli_test}" TEST_NAME)
+    test_component (target "${api_test}" TARGET_NAME)
+    test_component (test_name "${api_test}" TEST_NAME)
 
     add_executable (${target} ${api_test_cpp})
-    add_executable (${target} ${cli_test_cpp})
-    target_link_libraries (${target} fastq_to_fasta::test::coverage)
+    target_link_libraries (${target} "coverage")
     add_test (NAME "${test_name}" COMMAND ${target})
 
     # any change of a target will invalidate the coverage result;
@@ -86,20 +85,22 @@ macro (fastq_to_fasta_test api_test_cpp cli_test_cpp)
     set_property(GLOBAL APPEND PROPERTY GLOBAL_TEST_COVERAGE_ALL_TESTS ${target})
 
     unset (api_test)
-    unset (cli_test)
     unset (target)
     unset (test_name)
 endmacro ()
 
-# fastq_to_fasta_require_ccache ()
-# fastq_to_fasta_require_test ()
+# add macro add_api_test & add_cli_test
+include (../cmake/macros_add_X_test.cmake)
 
-# add macro add_subdirectories_of
-include (../cmake/seqan3_macro_add_subdirectories.cmake)
+include (../cmake/macro_seqan3_require_test.cmake)
+require_test ()
+
+# add function target_use_datasources
+include (../cmake/app_datasources.cmake)
 
 # add all api & cli tests
-add_subdirectories_of ("${CMAKE_CURRENT_SOURCE_DIR}/../api")
-add_subdirectories_of ("${CMAKE_CURRENT_SOURCE_DIR}/../cli")
+add_subdirectory (../api coverage)
+# add_subdirectory (../cli coverage)
 
 # add collected test cases as dependency
 get_property(TEST_COVERAGE_ALL_TESTS GLOBAL PROPERTY GLOBAL_TEST_COVERAGE_ALL_TESTS)
